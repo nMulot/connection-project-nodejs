@@ -5,16 +5,12 @@ const passport = require('passport');
 const passportSetup = require('./config/passport-setup');
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
-
 const app = express();
-
 const session = require("express-session");
 const bodyParser = require("body-parser");
-const CookieTool = require("./tools/cookie");
 
-// const cookieParser = require('cookie-parser');
-// app.use(cookieParser());
 
+//initialize for passport
 app.use(express.static("public"));
 app.use(session({
     maxAge: 24 * 60 * 60 * 1000,
@@ -22,7 +18,6 @@ app.use(session({
     cookie: { httpOnly: false }
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
-//initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -64,10 +59,6 @@ app.use('/profile', profileRoutes);
 
 // create home route
 app.get('/', (req, res) => {
-    var cookieTool = new CookieTool();
-    var cookies = cookieTool.parseCookies(req);
-    // console.log(cookies);
-    console.log('Cookies: ', cookies['connect.sid']);
     res.render('home', { user: req.user });
 });
 
