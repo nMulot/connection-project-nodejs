@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const passport = require('passport');
 const User = require('../models/user-model');
-const CookieTool = require("../tools/cookie");
+const CookieTool = require("../modules/cookie");
 const keys = require('../config/keys');
 
 // GET /auth/logout
@@ -12,11 +12,36 @@ router.get('/logout', (req, res) => {
     res.cookie('user_google_id', '');
     res.cookie('user_username', '');
     res.cookie('user_thumbnail', '');
+    res.cookie('user_email', '');
     // logout with passeport
     req.logout();
     // redirect to front-end
     res.redirect(keys.front.uri + '/');
 });
+
+// POST /auth/login
+router.post('/login',
+    passport.authenticate('local', { failureRedirect: keys.front.uri + '/auth/error' }),
+    function(req, res) {
+        var cookieTool = new CookieTool;
+        var cookies = cookieTool.parseCookies(req);
+        var sid = cookies['connect.sid'];
+        User.findById(req.user._id, function (err, user) {
+            if (err) return handleError(err);
+            user.set({ sid: sid });
+            user.save(function (err, updatedUser) {
+                if (err) return handleError(err);
+                console.log('save sid with success');
+            });
+        });
+        // init cookie
+        res.cookie('isConnected', true);
+        res.cookie('user_username', req.user.username);
+        res.cookie('user_email', req.user.email);
+        // redirect to front-end
+        res.redirect(keys.front.uri + '/auth/confirmation');
+    }
+);
 
 // GET /auth/google
 // this is the route middleware to authenticate the request. the first step of Google authentication that will involve redirect

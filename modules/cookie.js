@@ -1,8 +1,10 @@
+
 class CookieTool {
     constructor() {
 
     }
 
+    // this class allows you to recover cookies
     parseCookies (request) {
         var list = {},
             rc = request.headers.cookie;

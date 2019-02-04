@@ -1,12 +1,13 @@
 const express = require('express');
 const authRoutes = require('./routes/auth-routes');
 const passport = require('passport');
-const passportSetup = require('./config/passport-setup');
+const passportSetup = require('./modules/passport-setup');
 const mongoose = require('mongoose');
 const keys = require('./config/keys');
 const app = express();
 const session = require("express-session");
 const bodyParser = require("body-parser");
+
 
 
 //initialize for passport
@@ -19,9 +20,6 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-// set view engine
-app.set('view engine', 'ejs');
 
 // Add headers for connection cross-domain
 app.use(function (req, res, next) {
@@ -58,7 +56,7 @@ app.use('/auth', authRoutes);
 // GET /
 // create home route
 app.get('/', (req, res) => {
-    res.render('home', { user: req.user });
+    res.end('Le serveur nodeJS fonctionne!');
 });
 
 app.listen(3000, () => {
