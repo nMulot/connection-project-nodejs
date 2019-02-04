@@ -1,6 +1,5 @@
 const express = require('express');
 const authRoutes = require('./routes/auth-routes');
-const profileRoutes = require('./routes/profile-routes');
 const passport = require('passport');
 const passportSetup = require('./config/passport-setup');
 const mongoose = require('mongoose');
@@ -24,7 +23,7 @@ app.use(passport.session());
 // set view engine
 app.set('view engine', 'ejs');
 
-// Add headers
+// Add headers for connection cross-domain
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
@@ -53,10 +52,10 @@ mongoose.connect(keys.mongodb.dbURI, function(err) {
     }
 });
 
-// set up routes
+// set up routes /auth/*
 app.use('/auth', authRoutes);
-app.use('/profile', profileRoutes);
 
+// GET /
 // create home route
 app.get('/', (req, res) => {
     res.render('home', { user: req.user });
