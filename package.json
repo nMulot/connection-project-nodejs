@@ -1,5 +1,5 @@
 {
-  "name": "mon-app",
+  "name": "connection-project-nodejs",
   "version": "0.1.0",
   "dependencies": {
     "ejs": "^2.6.1",
