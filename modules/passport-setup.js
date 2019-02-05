@@ -49,16 +49,23 @@ passportSetup.use(new LocalStrategy({
         passwordField: 'password'
     },
     function(email, password, done) {
-        console.log('ok');
-        User.findOne({ email: email }, function(err, user) {
-            if (err) { return done(err); }
-            if (!user) {
-                return done(null, false, { message: 'Incorrect username.' });
+        console.log(email);
+        User.findOne({email: email}).then((currentUser) => {
+            if(currentUser){
+                // already have this user
+                console.log('user is: ', currentUser);
+                // if correct password
+                if( currentUser.password === password ) {
+                    return done(null, currentUser);
+                } else {
+                    // if incorrect password
+                    return done(null, false, { message: 'Incorrect password.' });
+                }
+            } else {
+                // if user not exist
+                return done(null, false, { message: 'Incorrect email.' });
             }
-            if (!user.validPassword(password)) {
-                return done(null, false, { message: 'Incorrect password.' });
-            }
-            return done(null, user);
+
         });
     }
 ));
