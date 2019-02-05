@@ -7,6 +7,28 @@ const keys = require('../config/keys');
 // GET /auth/logout
 // this is the route middleware to authenticate the request. the first step of Google authentication that will involve redirect
 router.get('/logout', (req, res) => {
+
+    // get sid in cookie
+    var cookieTool = new CookieTool;
+    var cookies = cookieTool.parseCookies(req);
+    var sid = cookies['connect.sid'];
+
+    // search user by sid
+    User.findOne({sid: sid}).then((currentUser) => {
+        if(currentUser){ // if user exist set null to sid field. this avoids that 2 consecutive connections lead to errators due to the same sid
+            currentUser.set({ sid: null });
+            console.log('delete-sid', sid);
+
+            currentUser.save(function (err, updatedUser) {
+                if (err) {
+                    console.log('error to save user :', err);
+                } else {
+                    console.log('save sid with success');
+                }
+            });
+        }
+    });
+
     // init cookie for logout
     res.cookie('isConnected', false);
     res.cookie('user_google_id', '');
@@ -142,21 +164,27 @@ router.get('/google/redirect',
 // for get connected user information
 router.get("/profile", (req, res, next) => {
     var sid = req.query.connectSidAngular;
-    User.findOne({sid: sid}).then((currentUser) => {
-        if(currentUser){
-            // if the sid is a connected user
-            console.log('user is: ', currentUser);
-            res.json({
-                username: currentUser.username,
-                googleId: currentUser.googleId,
-                thumbnail: currentUser.thumbnail,
-                sid: currentUser.sid
-            });
-        } else {
-            // if user not find
-            res.json(null);
-        }
-    });
+    if(sid) {
+        User.findOne({sid: sid}).then((currentUser) => {
+            if(currentUser){
+                // if the sid is a connected user
+                console.log('user is: ', currentUser);
+                res.json({
+                    username: currentUser.username,
+                    googleId: currentUser.googleId,
+                    thumbnail: currentUser.thumbnail,
+                    sid: currentUser.sid
+                });
+            } else {
+                // if user not find
+                res.json(null);
+            }
+        });
+    } else {
+        //if sid not exist or null return null
+        res.json(null);
+    }
+
 });
 
 module.exports = router;
